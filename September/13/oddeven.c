@@ -1,8 +1,8 @@
-#include<stdio.h>
+#include <stdio.h>
 int main(){
 	int num;
 	printf("Enter a number : ");
 	scanf("%d", &num);
-	(num%2 == 0) ? printf("%d is Even", num) : printf("%d is Odd", num);
+	printf("%d is %s\n", num, (num % 2 == 0) ? "Even" : "Odd");
 	return 0;
 }

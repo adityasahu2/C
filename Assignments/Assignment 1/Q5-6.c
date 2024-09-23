@@ -5,3 +5,6 @@ int main()
     printf("%d ", n);
     return (0);
 }
+/* Output:
+Hello
+6 */

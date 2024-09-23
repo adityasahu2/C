@@ -2,5 +2,6 @@
 int main()
 {
     char ch = 97;
-    print("%d", sizeof(ch + 4));
+    printf("%d", sizeof(ch + 4));
 }
+// Output : 4

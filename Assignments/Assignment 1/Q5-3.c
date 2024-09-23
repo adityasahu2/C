@@ -2,7 +2,8 @@
 int main()
 {
     char ch ='A';
-    print("%d", sizeof(ch));
-    print("%d", sizeof('A'));
+    printf("%d", sizeof(ch));
+    printf("%d", sizeof('A'));
     return (0);
 }
+// Output : 14 

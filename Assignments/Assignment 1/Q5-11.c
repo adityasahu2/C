@@ -10,7 +10,7 @@ int main()
     scanf("%d", &c);
     printf("a = %d, b = %d, c = %d\n", a, b, c);
     printf("Enter in decimal format: ");
-    scanf("%i", &b);
+    scanf("%i", &a);
     printf("Enter in octal format: ");
     scanf("%i", &b);
     printf("Enter in hexadecimal format: ");
@@ -20,10 +20,10 @@ int main()
 }
 /* Output :
 Enter in decimal format: 10
-Enter in octal format: 10
-Enter in hexadecimal format: 10
-a = 10, b = 10, c = 10
+Enter in octal format: 010
+Enter in hexadecimal format: 0xA
+a = 10, b = 10, c = 0
 Enter in decimal format: 10
-Enter in octal format: 10
-Enter in hexadecimal format: 10
-a = 10, b = 10, c = 10*/
+Enter in octal format: 010
+Enter in hexadecimal format: 0xA
+a = 10, b = 8, c = 10*/

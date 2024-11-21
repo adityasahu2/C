@@ -10,7 +10,7 @@ int main(){
 	printf("Enter %d elements: ",num);
 	for(int i = 0; i < num; i++)
 		scanf("%d", &arr[i]);
-	
+		
 	bubbleSort(arr,num);
 	printArray(arr,num);
 	printf("\n");

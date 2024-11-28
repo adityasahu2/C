@@ -1,11 +1,9 @@
 #include <stdio.h>
 
 void binaryToHexadecimal(char binary[]) {
-    int decimal = 0, i = 0;
-    while (binary[i] != '\0') {
+    int decimal = 0;
+    for (int i = 0; binary[i]; i++) 
         decimal = decimal * 2 + (binary[i] - '0');
-        i++;
-    }
     printf("Hexadecimal: %X\n", decimal);
 }
 

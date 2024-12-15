@@ -1,0 +1,42 @@
+SLL is a LL consisting of nodes where each node contains 2 parts:- 
+1. Data that hold the actual value
+2. Pointer that is a pointer to the next node in the sequence
+
+Key point of SLL:-
+1. Dynamic size
+    Unlike array the size of the LL is not fixed nodes can be dynamically added or removed
+2. Sequential Access
+    Nodes are accessed sequentially starting from head
+3. Efficient adding and removing data
+    Adding and removing element is more efficient than array because there is no need to shift element
+
+How to declare SLL:-
+Structure of Node -
+struct Node{
+    int data;
+    struct Node *next;
+};
+
+Operation of SLL:-
+1. Creation -
+    The list start with a null pointer that represent empty list 
+    Nodes are dynamically created using the malloc function
+2. Insertion -
+    a. At beginning - Add a node at the start of the list
+    b. At end - Traverse the list at the last node insert the element
+    c. At any position - Traverse to the specific position and link the new node
+3. Deletion - 
+    a. At beginning - Update the head pointer to the nest node and free the original pointer
+    b. At end - Traverse to the second last node and update its next pointer to null
+    c. At any position - Locate the node containing the value update pointer to unlink it and free its memory
+4. Traversal -
+    Start from the head node and sequentially access each node until the end where next is null
+5. Search - 
+    Traverse the list and check if the value is present in any Node
+6. Reverse - 
+    Modify the next pointer of the each node to the reverse direction of the list and make last node as head 
+
+Disadvantage -
+    1. Need more memory
+    2. Time complexity
+    3. Slower than array

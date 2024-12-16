@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/wait.h>
+// #include <sys/wait.h>
 #include <stdlib.h>
 void fibonacci(int n){
 	int a = 0, b = 1, c;

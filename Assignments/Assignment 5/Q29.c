@@ -1,0 +1,1 @@
+// (1) int (*ptr)(int, int, int) = funname;

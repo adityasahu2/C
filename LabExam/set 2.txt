@@ -1,0 +1,149 @@
+Q1.
+
+#include <stdio.h>
+
+int main() {
+    int prev_reading, curr_reading, units;
+    float cost = 0;
+
+    printf("Enter previous meter reading: ");
+    scanf("%d", &prev_reading);
+    
+    printf("Enter current meter reading: ");
+    scanf("%d", &curr_reading);
+
+    units = curr_reading - prev_reading;
+
+    if (units <= 100)
+        cost = units * 3;             // First 100 units at 3 per unit
+    else if (units <= 300)
+        cost = (100 * 3) + (units - 100) * 5;  // Next 200 units at 5 per unit
+    else
+        cost = (100 * 3) + (200 * 5) + (units - 300) * 7;  // Above 300 units at 7 per unit
+
+    cost += 50;  // Maintenance charge
+    
+    if (cost > 1000)
+        cost += cost * 0.1;  // Add 10% surcharge if bill exceeds 1000
+
+    printf("Total units consumed: %d\n", units);
+    printf("Total bill: %.2f\n", cost);
+
+    return 0;
+}
+
+
+Q2.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+void count_words(char *filename) {
+    FILE *file = fopen(filename, "r");
+    int count = 0;
+    char word[50];
+    
+    while (fscanf(file, "%s", word) != EOF)
+        count++;
+
+    printf("Words: %d\n", count);
+    fclose(file);
+}
+
+void count_lines(char *filename) {
+    FILE *file = fopen(filename, "r");
+    int count = 0;
+    char c;
+    
+    while ((c = fgetc(file)) != EOF) {
+        if (c == '\n')
+            count++;
+    }
+
+    printf("Lines: %d\n", count);
+    fclose(file);
+}
+
+void count_chars(char *filename) {
+    FILE *file = fopen(filename, "r");
+    int count = 0;
+    char c;
+    
+    while ((c = fgetc(file)) != EOF)
+        count++;
+
+    printf("Characters: %d\n", count);
+    fclose(file);
+}
+
+int main() {
+    char filename[50];
+    printf("Enter the filename: ");
+    scanf("%s", filename);
+
+    if (fork() == 0) {  // First child process
+        count_words(filename);
+        exit(0);
+    }
+
+    if (fork() == 0) {  // Second child process
+        count_lines(filename);
+        exit(0);
+    }
+
+    if (fork() == 0) {  // Third child process
+        count_chars(filename);
+        exit(0);
+    }
+
+    wait(NULL);  // Parent waits for all children to finish
+    wait(NULL);
+    wait(NULL);
+
+    printf("Parent process done.\n");
+    return 0;
+}
+
+
+Q3.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+void generate_series(int id) {
+    for (int k = 0; k <= 9; k++)
+        printf("%d ", 3 * k + id);
+    
+    printf("\n");
+}
+
+int main() {
+    if (fork() == 0) {  // First child
+        printf("Child 1: ");
+        generate_series(1);
+        exit(0);
+    }
+
+    if (fork() == 0) {  // Second child
+        printf("Child 2: ");
+        generate_series(2);
+        exit(0);
+    }
+
+    if (fork() == 0) {  // Third child
+        printf("Child 3: ");
+        generate_series(3);
+        exit(0);
+    }
+
+    wait(NULL);  // Parent waits for all children to finish
+    wait(NULL);
+    wait(NULL);
+
+    printf("Parent process done.\n");
+    return 0;
+}

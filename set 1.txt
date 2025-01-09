@@ -1,0 +1,270 @@
+set 1
+Q1
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+
+#define BUFFER_SIZE 128
+
+
+float celsiusToFahrenheit(float celsius) {
+    return (celsius * 9.0 / 5.0) + 32.0;
+}
+
+int main() {
+    int fd;                
+    char buffer[BUFFER_SIZE];
+    char *filename = "temperatures.txt";
+    ssize_t bytesRead;
+    char *token;
+    float tempCelsius, tempFahrenheit;
+
+    
+    fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        perror("Error opening file");
+        return 1;
+    }
+
+   
+    bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+    if (bytesRead < 0) {
+        perror("Error reading file");
+        close(fd);
+        return 1;
+    }
+    buffer[bytesRead] = '\0'; 
+
+  
+    close(fd);
+
+ 
+    printf("| Temp Obs | Temp (F) | Status  |\n");
+    printf("|----------|----------|---------|\n");
+
+   
+    token = strtok(buffer, "\n");
+    while (token != NULL) {
+        tempCelsius = atof(token);
+        tempFahrenheit = celsiusToFahrenheit(tempCelsius);
+
+      
+        printf("| %8.1f | %8.1f | ", tempCelsius, tempFahrenheit);
+
+       
+        if (tempFahrenheit < 23.0) {
+            printf("Below   |\n");
+        } else if (tempFahrenheit <= 50.0) {
+            printf("Right   |\n");
+        } else {
+            printf("Above   |\n");
+        }
+
+        
+        token = strtok(NULL, "\n");
+    }
+
+    return 0;
+}
+
+
+
+Q2
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+#define FILE_NAME "textfile.txt"
+#define TEMP_FILE "temp.txt"
+
+// Function to write user input to a file
+void write_to_file(int fd) {
+    char buffer[256];
+    printf("Enter text (type 'END' to finish):\n");
+    while (1) {
+        fgets(buffer, sizeof(buffer), stdin);
+        if (strncmp(buffer, "END", 3) == 0) break;
+        write(fd, buffer, strlen(buffer));
+    }
+}
+
+// Function to convert the content of a file to uppercase
+void convert_to_uppercase(int fd_input, int fd_output) {
+    char ch;
+    ssize_t bytes_read;
+
+    // Read character by character, convert to uppercase, and write to temp file
+    while ((bytes_read = read(fd_input, &ch, 1)) > 0) {
+        ch = toupper(ch);
+        write(fd_output, &ch, 1);
+    }
+
+    if (bytes_read == -1) {
+        perror("Error reading file");
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Function to display the content of a file
+void display_file_content(int fd) {
+    char buffer[256];
+    ssize_t bytes_read;
+
+    printf("\nFinal Content of the File:\n");
+    printf("---------------------------------\n");
+    while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
+        write(STDOUT_FILENO, buffer, bytes_read);
+    }
+    printf("---------------------------------\n");
+
+    if (bytes_read == -1) {
+        perror("Error reading file");
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    pid_t pid1, pid2;
+
+    // Create and open the main file for writing
+    int fd_main = open(FILE_NAME, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd_main == -1) {
+        perror("Error opening file for writing");
+        return EXIT_FAILURE;
+    }
+
+    // Write user input to the file
+    write_to_file(fd_main);
+    close(fd_main);  // Close the file after writing
+
+    // Create the first child process to convert text to uppercase
+    pid1 = fork();
+    if (pid1 == 0) {
+        // In the first child process
+        int fd_input = open(FILE_NAME, O_RDONLY);
+        int fd_output = open(TEMP_FILE, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+        if (fd_input == -1 || fd_output == -1) {
+            perror("Error opening files in child 1");
+            exit(EXIT_FAILURE);
+        }
+
+        // Perform conversion
+        convert_to_uppercase(fd_input, fd_output);
+
+        close(fd_input);
+        close(fd_output);
+
+        // Replace the original file with the updated file
+        rename(TEMP_FILE, FILE_NAME);
+
+        exit(EXIT_SUCCESS);
+    } else if (pid1 > 0) {
+        // In the parent process, wait for the first child to finish
+        waitpid(pid1, NULL, 0);
+
+        // Create the second child process to display the file content
+        pid2 = fork();
+        if (pid2 == 0) {
+            // In the second child process
+            int fd_display = open(FILE_NAME, O_RDONLY);
+            if (fd_display == -1) {
+                perror("Error opening file in child 2");
+                exit(EXIT_FAILURE);
+            }
+
+            // Display the content
+            display_file_content(fd_display);
+            close(fd_display);
+
+            exit(EXIT_SUCCESS);
+        } else if (pid2 > 0) {
+            // In the parent process, wait for the second child to finish
+            waitpid(pid2, NULL, 0);
+        } else {
+            perror("Failed to create second child");
+            return EXIT_FAILURE;
+        }
+    } else {
+        perror("Failed to create first child");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+
+
+Q3
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <semaphore.h>
+#include <errno.h>
+
+// Define the named semaphore
+#define SEM_NAME "/print_semaphore"
+
+// Function to simulate the print request
+void print_PID() {
+    int PID = getpid();
+    char str[100];
+    sprintf(str, "My process ID is %d\n", PID);
+    for (int i = 0; i < strlen(str); i++) {
+        fprintf(stderr, "%c", str[i]);
+        sleep(1);
+    }
+}
+
+int main() {
+    sem_t *sem;
+    pid_t pid[3];
+
+    // Create or open the named semaphore
+    sem = sem_open(SEM_NAME, O_CREAT, 0644, 1);
+    if (sem == SEM_FAILED) {
+        perror("sem_open failed");
+        return EXIT_FAILURE;
+    }
+
+    for (int i = 0; i < 3; i++) {
+        pid[i] = fork();
+
+        if (pid[i] == 0) {
+            // Child process
+            sem_wait(sem);  // Wait for semaphore
+            print_PID();    // Call the print function
+            sem_post(sem);  // Release semaphore
+            exit(EXIT_SUCCESS);
+        } else if (pid[i] < 0) {
+            perror("fork failed");
+            return EXIT_FAILURE;
+        }
+    }
+
+    // Parent process waits for all children to finish
+    for (int i = 0; i < 3; i++) {
+        waitpid(pid[i], NULL, 0);
+    }
+
+    // Close and unlink the semaphore
+    sem_close(sem);
+    sem_unlink(SEM_NAME);
+
+    return EXIT_SUCCESS;
+}

@@ -10,8 +10,7 @@ int main(){
 		for(int j = 0; j < k; j++)
 			printf("  ");
 		for(int j = ch-i; j >= 65; j--){
-			if(j==ch)
-				j-=1;
+			if(j==ch) j--;
 			printf("%c ", j);
 		}
 		printf("\n");
